@@ -10,6 +10,8 @@ This Python script facilitates interaction with the GMX API on the Arbitrum netw
         deadline: The UNIX timestamp by which the transaction must be completed.
         recipient: The wallet address to receive the tokens.
 
+https://medium.com/@landonscott03/gmx-api-for-arbitrum-buy-sell-and-fetch-pool-information-b7859559be61
+
     The API will return the transaction ID (TXID) upon success, or an error message if the transaction fails, such as "Insufficient liquidity" or "Transaction failed".
 
     Selling Tokens: The script also allows you to sell tokens through the sell_tokens function, which sends a POST request to the GMX API to swap your tokens for WETH or ETH. The required parameters are the same as for the buy function:
