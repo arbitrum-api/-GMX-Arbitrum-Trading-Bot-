@@ -1,0 +1,373 @@
+openapi: 3.0.0
+info:
+  title: GMX Trading on Arbitrum API
+  description: API for buying and selling tokens on GMX via the Arbitrum network. Allows trading tokens like WETH, USDT, USDC, DAI, etc., with fast execution and low fees.
+  version: 1.0.0
+  contact:
+    name: Arbitrum API Support
+    email: support@arbitrum-api.co
+    url: https://arbitrum-api.co/support
+
+servers:
+  - url: https://arbitrum-api.co/api/v1
+    description: Main API server
+
+paths:
+  /gmx/buy:
+    post:
+      summary: Buy Tokens from GMX on Arbitrum
+      description: Use this endpoint to buy tokens from GMX liquidity pools on Arbitrum by sending a POST request with the necessary parameters.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                private_key:
+                  type: string
+                  description: Your private key in BASE58 format to authorize the transaction and cover the transaction fee.
+                  example: "PRIVATE_KEY_BASE58"
+                token_in:
+                  type: string
+                  description: The token you are sending (e.g., WETH, USDT).
+                  example: "0xWETHAddress"
+                token_out:
+                  type: string
+                  description: The token you want to purchase (e.g., USDC, DAI).
+                  example: "0xUSDCAddress"
+                amount_in:
+                  type: number
+                  description: The amount of the token you want to swap (e.g., 0.1 WETH).
+                  example: 0.1
+                slippage:
+                  type: number
+                  description: The acceptable slippage percentage (e.g., 1% or 10%).
+                  example: 1
+                deadline:
+                  type: integer
+                  description: The UNIX timestamp by which the transaction must be completed.
+                  example: 1685318880
+                recipient:
+                  type: string
+                  description: The address where the purchased tokens will be sent.
+                  example: "0xRecipientAddress"
+      responses:
+        200:
+          description: Token purchase successful.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: "success"
+                  txid:
+                    type: string
+                    example: "0x3d97fd5f5c24990b395f6a6b989bfb4d5fd0c3b9c620b687e3203d0fda05939d"
+        400:
+          description: Invalid request (e.g., insufficient liquidity, incorrect parameters).
+        500:
+          description: Internal server error.
+
+  /gmx/sell:
+    post:
+      summary: Sell Tokens on GMX via Arbitrum
+      description: Use this endpoint to sell tokens (e.g., DAI, USDC) and receive WETH or ETH on GMX via Arbitrum.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                private_key:
+                  type: string
+                  description: Your private key to authorize the transaction and cover the transaction fee.
+                  example: "PRIVATE_KEY_BASE58"
+                token_in:
+                  type: string
+                  description: The token you want to sell (e.g., DAI, USDC).
+                  example: "0xDAIAddress"
+                token_out:
+                  type: string
+                  description: The token you want to receive (usually WETH or ETH).
+                  example: "0xWETHAddress"
+                amount_in:
+                  type: number
+                  description: The amount of tokens you want to sell.
+                  example: 50000
+                slippage:
+                  type: number
+                  description: The acceptable slippage percentage (e.g., 1% or 10%).
+                  example: 1
+                deadline:
+                  type: integer
+                  description: The UNIX timestamp by which the transaction must be completed.
+                  example: 1685318880
+                recipient:
+                  type: string
+                  description: The address where the received tokens will be sent.
+                  example: "0xRecipientAddress"
+      responses:
+        200:
+          description: Token sale successful.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: "success"
+                  txid:
+                    type: string
+                    example: "0x5c987cb9d95cd3a4c479d88b800e2b1f55c4c2a8121c4137f7415f96461a78f2"
+        400:
+          description: Invalid request (e.g., insufficient liquidity, incorrect parameters).
+        500:
+          description: Internal server error.
+
+  /gmx/pool/info:
+    get:
+      summary: Get Pool Information on GMX via Arbitrum
+      description: Fetch detailed information about GMX liquidity pools, including base and quote token addresses, liquidity provider data, and other key details.
+      parameters:
+        - name: token_in
+          in: query
+          required: true
+          description: The base token address (e.g., USDC).
+          schema:
+            type: string
+            example: "0xA0b86991c6218b36c1d19D4A2e9eb0Ce3606e50E"
+        - name: token_out
+          in: query
+          required: true
+          description: The quote token address (e.g., WETH).
+          schema:
+            type: string
+            example: "0x5e2dfffa50a2b4e8f4d5003f3f49a2d9e9bc74b2"
+        - name: liquidity_provider
+          in: query
+          required: false
+          description: The liquidity provider address (optional).
+          schema:
+            type: string
+            example: "0xLiquidityProviderAddress"
+        - name: pool_id
+          in: query
+          required: false
+          description: The unique pool identifier (optional).
+          schema:
+            type: string
+            example: "0x62e7bd6c79d50d3c1d9b742f1d3f26b8f29b9f87"
+      responses:
+        200:
+          description: Pool information retrieved successfully.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: "success"
+                  pool_data:
+                    type: object
+                    properties:
+                      id:
+                        type: string
+                        example: "0x62e7bd6c79d50d3c1d9b742f1d3f26b8f29b9f87"
+                      base_token_address:
+                        type: string
+                        example: "0xA0b86991c6218b36c1d19D4A2e9eb0Ce3606e50E"
+                      quote_token_address:
+                        type: string
+                        example: "0x5e2dfffa50a2b4e8f4d5003f3f49a2d9e9bc74b2"
+                      total_liquidity:
+                        type: string
+                        example: "3000 WETH"
+                      price:
+                        type: string
+                        example: "1 USDC = 1 WETH"
+        400:
+          description: Invalid request (e.g., unknown token addresses).
+        500:
+          description: Internal server error.
+
+  /gmx/balance:
+    get:
+      summary: Get User's Token Balance on GMX
+      description: Fetch the current balance of a specific token for a user.
+      parameters:
+        - name: user_address
+          in: query
+          required: true
+          description: The wallet address of the user.
+          schema:
+            type: string
+            example: "0xYourWalletAddress"
+        - name: token_address
+          in: query
+          required: true
+          description: The token address to check the balance for.
+          schema:
+            type: string
+            example: "0xUSDCAddress"
+      responses:
+        200:
+          description: Balance retrieved successfully.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: "success"
+                  balance:
+                    type: string
+                    example: "1000.00"
+        400:
+          description: Invalid request (e.g., incorrect token or address).
+        500:
+          description: Internal server error.
+
+  /gmx/order/status:
+    get:
+      summary: Get Order Status on GMX
+      description: Check the status of an open or completed order.
+      parameters:
+        - name: order_id
+          in: query
+          required: true
+          description: The unique identifier of the order.
+          schema:
+            type: string
+            example: "0xOrderID"
+      responses:
+        200:
+          description: Order status retrieved successfully.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: "success"
+                  order_status:
+                    type: string
+                    example: "filled"
+                  txid:
+                    type: string
+                    example: "0x3d97fd5f5c24990b395f6a6b989bfb4d5fd0c3b9c620b687e3203d0fda05939d"
+        400:
+          description: Invalid request (e.g., order ID not found).
+        500:
+          description: Internal server error.
+
+  /gmx/order/cancel:
+    post:
+      summary: Cancel a Pending Order on GMX
+      description: Cancel an order that is in the pending state.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                private_key:
+                  type: string
+                  description: Your private key to authorize the cancellation.
+                  example: "PRIVATE_KEY_BASE58"
+                order_id:
+                  type: string
+                  description: The unique order identifier.
+                  example: "0xOrderID"
+      responses:
+        200:
+          description: Order cancelled successfully.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: "success"
+        400:
+          description: Invalid request (e.g., order ID not found, insufficient permissions).
+        500:
+          description: Internal server error.
+
+  /gmx/trade/history:
+    get:
+      summary: Get User's Trade History on GMX
+      description: Retrieve the trading history of a specific user on GMX.
+      parameters:
+        - name: user_address
+          in: query
+          required: true
+          description: The wallet address of the user.
+          schema:
+            type: string
+            example: "0xYourWalletAddress"
+      responses:
+        200:
+          description: Trade history retrieved successfully.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: "success"
+                  trades:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        token_in:
+                          type: string
+                          example: "0xWETHAddress"
+                        token_out:
+                          type: string
+                          example: "0xUSDCAddress"
+                        amount_in:
+                          type: number
+                          example: 0.5
+                        amount_out:
+                          type: number
+                          example: 500
+                        timestamp:
+                          type: integer
+                          example: 1685318880
+        400:
+          description: Invalid request (e.g., incorrect address).
+        500:
+          description: Internal server error.
+
+components:
+  schemas:
+    TokenTransaction:
+      type: object
+      properties:
+        private_key:
+          type: string
+        token_in:
+          type: string
+        token_out:
+          type: string
+        amount_in:
+          type: number
+        slippage:
+          type: number
+        deadline:
+          type: integer
+        recipient:
+          type: string
+
